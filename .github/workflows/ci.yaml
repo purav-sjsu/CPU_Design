@@ -31,3 +31,8 @@ jobs:
         run: |
           g++ -std=c++17 -o test_bitwise tests/alu/test_bitwise.cpp gates/gates.cpp datapath/bitwise.cpp utils/utils.cpp
           ./test_bitwise
+
+      - name: Build and run clock tests
+        run: |
+          g++ -std=c++17 -o test_clock tests/test_clock.cpp clock/clock.cpp
+          ./test_clock
