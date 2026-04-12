@@ -2,8 +2,8 @@
 #include <iostream>
 #include <vector>
 
-#include "../datapath/adders.h"
-#include "../utils/utils.h"
+#include "../../datapath/adders.h"
+#include "../../utils/utils.h"
 
 // Test HalfAdder
 void testHalfAdder() {
@@ -86,6 +86,6 @@ int main() {
 	testFullAdder();
 	std::cout << "(3/3) Testing adder\n";
 	testAdder();
-	std::cout << "All adder tests passed!\n";
+	std::cout << "All adder tests passed!\n\n";
 	return 0;
 }

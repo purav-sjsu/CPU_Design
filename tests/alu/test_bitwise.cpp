@@ -75,6 +75,6 @@ int main() {
 	testBitwiseXOR();
 	std::cout << "(4/4) Testing bitwiseNOT\n";
 	testBitwiseNOT();
-	std::cout << "All bitwise tests passed!\n";
+	std::cout << "All bitwise tests passed!\n\n";
 	return 0;
 }

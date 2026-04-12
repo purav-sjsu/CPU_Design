@@ -46,6 +46,6 @@ int main() {
 	testEdgeCases();
 	std::cout << "(2/2) Testing 16-bit round-trips\n";
 	testRoundTrip();
-	std::cout << "All utils tests passed!\n";
+	std::cout << "All utils tests passed!\n\n";
 	return 0;
 }

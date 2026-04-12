@@ -44,6 +44,6 @@ int main() {
 	testXorGate();
 	std::cout << "(4/4) Testing NOT gate\n";
 	testNotGate();
-	std::cout << "All gate tests passed!\n";
+	std::cout << "All gate tests passed!\n\n";
 	return 0;
 }
