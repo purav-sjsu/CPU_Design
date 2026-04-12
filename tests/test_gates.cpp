@@ -6,32 +6,32 @@
 // Test AND gate
 
 void testAndGate() {
-	assert(AND(0, 0).evaluate() == false);
-	assert(AND(0, 1).evaluate() == false);
-	assert(AND(1, 0).evaluate() == false);
-	assert(AND(1, 1).evaluate() == true);
+	assert(AND(0, 0).eval() == false);
+	assert(AND(0, 1).eval() == false);
+	assert(AND(1, 0).eval() == false);
+	assert(AND(1, 1).eval() == true);
 }
 
 // Test OR gate
 void testOrGate() {
-	assert(OR(0, 0).evaluate() == 0);
-	assert(OR(0, 1).evaluate() == 1);
-	assert(OR(1, 0).evaluate() == 1);
-	assert(OR(1, 1).evaluate() == 1);
+	assert(OR(0, 0).eval() == 0);
+	assert(OR(0, 1).eval() == 1);
+	assert(OR(1, 0).eval() == 1);
+	assert(OR(1, 1).eval() == 1);
 }
 
 // Test XOR gate
 void testXorGate() {
-	assert(XOR(0, 0).evaluate() == 0);
-	assert(XOR(0, 1).evaluate() == 1);
-	assert(XOR(1, 0).evaluate() == 1);
-	assert(XOR(1, 1).evaluate() == 0);
+	assert(XOR(0, 0).eval() == 0);
+	assert(XOR(0, 1).eval() == 1);
+	assert(XOR(1, 0).eval() == 1);
+	assert(XOR(1, 1).eval() == 0);
 }
 
 // Test NOT gate
 void testNotGate() {
-	assert(NOT(0).evaluate() == 1);
-	assert(NOT(1).evaluate() == 0);
+	assert(NOT(0).eval() == 1);
+	assert(NOT(1).eval() == 0);
 }
 
 int main() {

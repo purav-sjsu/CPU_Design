@@ -1,25 +1,41 @@
 #include "gates.h"
 
-OR::OR(bool inputA, bool inputB): A(inputA), B(inputB) {}
-
-bool OR::evaluate() {
-	return A || B;
+// OR gate
+OR::OR(bool inputA, bool inputB)
+	: A(inputA), B(inputB) {
+	result = A || B;
 }
 
-AND::AND(bool inputA, bool inputB): A(inputA), B(inputB) {}
-
-bool AND::evaluate() {
-	return A && B;
+bool OR::eval() {
+	return result;
 }
 
-NOT::NOT(bool input): A(input) {}
-
-bool NOT::evaluate() {
-	return !A;
+// AND gate
+AND::AND(bool inputA, bool inputB)
+	: A(inputA), B(inputB) {
+	result = A && B;
 }
 
-XOR::XOR(bool inputA, bool inputB): A(inputA), B(inputB) {}
+bool AND::eval() {
+	return result;
+}
 
-bool XOR::evaluate() {
-	return A ^ B;
+// NOT gate
+NOT::NOT(bool input)
+	: A(input) {
+	result = !A;
+}
+
+bool NOT::eval() {
+	return result;
+}
+
+// XOR gate
+XOR::XOR(bool inputA, bool inputB)
+	: A(inputA), B(inputB) {
+	result = A ^ B;
+}
+
+bool XOR::eval() {
+	return result;
 }

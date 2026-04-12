@@ -1,34 +1,45 @@
+#ifndef GATES_H
+#define GATES_H
+
+#include <vector>
+
 class OR {
 	public:
 		OR(bool inputA, bool inputB);
-		bool evaluate();
+		bool eval();
 	private:
 		bool A;
 		bool B;
+		bool result;
 };
 
 class AND {
 	public:
 		AND(bool inputA, bool inputB);
-		bool evaluate();
+		bool eval();
 	private:
 		bool A;
 		bool B;
+		bool result;
 };
 
 class NOT {
 	public:
 		NOT(bool input);
-		bool evaluate();
+		bool eval();
 	private:
 		bool A;
+		bool result;
 };
 
 class XOR {
 	public:
 		XOR(bool inputA, bool inputB);
-		bool evaluate();
+		bool eval();
 	private:
 		bool A;
 		bool B;
+		bool result;
 };
+
+#endif // GATES_H

@@ -1,8 +1,8 @@
 name: CPU Design Tests
 
 on:
-  pull_request:
   push:
+  pull_request:
 
 jobs:
   test:
@@ -12,11 +12,22 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Install compiler
-        run: sudo apt-get update && sudo apt-get install -y g++
+      - name: Build and run utils tests
+        run: |
+          g++ -std=c++17 -o test_utils tests/test_utils.cpp utils/utils.cpp
+          ./test_utils
 
-      - name: Build tests
-        run: g++ -std=c++17 tests/test_gates.cpp gates/gates.cpp -o test_runner
+      - name: Build and run gates tests
+        run: |
+          g++ -std=c++17 -o test_gates tests/test_gates.cpp datapath/gates.cpp
+          ./test_gates
 
-      - name: Run tests
-        run: ./test_runner
+      - name: Build and run adders tests
+        run: |
+          g++ -std=c++17 -o test_adders tests/alu/test_adders.cpp datapath/adders.cpp utils/utils.cpp
+          ./test_adders
+
+      - name: Build and run bitwise tests
+        run: |
+          g++ -std=c++17 -o test_bitwise tests/alu/test_bitwise.cpp datapath/bitwise.cpp utils/utils.cpp
+          ./test_bitwise
