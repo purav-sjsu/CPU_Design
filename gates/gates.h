@@ -1,8 +1,6 @@
 #ifndef GATES_H
 #define GATES_H
 
-#include <vector>
-
 bool OR(bool inputA, bool inputB);
 
 bool AND(bool inputA, bool inputB);

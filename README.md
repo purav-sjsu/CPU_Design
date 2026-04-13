@@ -4,7 +4,7 @@ Goals: Design and implement a complete software CPU in C/C++, including its arch
 
 > Design Assumptions
 > - All components assume **16-bit** unless configured otherwise
-> - All 16-bit binary values are represented by `std::vector<bool>` with **index 0 as MSB** (most significant bit)
+> - All binary values are represented by `std::vector<bool>` with **index 0 as MSB** (most significant bit) and **last index as LSB** (Least significant bit)
 
 ## Project Structure
 
@@ -42,6 +42,11 @@ g++ -std=c++17 -o test_adders tests/alu/test_adders.cpp gates/gates.cpp datapath
 Bitwise Logic Ops
 ```bash
 g++ -std=c++17 -o test_bitwise tests/alu/test_bitwise.cpp gates/gates.cpp datapath/bitwise.cpp utils/utils.cpp && ./test_bitwise
+```
+
+Register File
+```bash
+g++ -std=c++17 -o test_registers tests/registers/test_registers.cpp datapath/regfile.cpp memory/register.cpp memory/flipflop.cpp gates/gates.cpp utils/utils.cpp && ./test_registers
 ```
 
 ### Clock

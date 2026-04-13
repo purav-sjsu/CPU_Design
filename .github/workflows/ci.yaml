@@ -32,6 +32,11 @@ jobs:
           g++ -std=c++17 -o test_bitwise tests/alu/test_bitwise.cpp gates/gates.cpp datapath/bitwise.cpp utils/utils.cpp
           ./test_bitwise
 
+      - name: Build and run register file tests
+        run: |
+          g++ -std=c++17 -o test_registers tests/registers/test_registers.cpp datapath/regfile.cpp memory/register.cpp memory/flipflop.cpp gates/gates.cpp utils/utils.cpp
+          ./test_registers
+
       - name: Build and run clock tests
         run: |
           g++ -std=c++17 -o test_clock tests/test_clock.cpp clock/clock.cpp
