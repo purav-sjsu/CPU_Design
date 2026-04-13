@@ -1,4 +1,5 @@
 #include "memory.h"
+#include <stdexcept>
 
 Memory::Memory(unsigned int numWords, unsigned int wordSize)
 	: numWords(numWords), wordSize(wordSize) {
