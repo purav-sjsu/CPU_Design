@@ -12,47 +12,11 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Build and run utils tests
-        run: |
-          g++ -std=c++17 -o test_utils tests/test_utils.cpp utils/utils.cpp
-          ./test_utils
+      - name: Configure
+        run: cmake -B build
 
-      - name: Build and run gates tests
-        run: |
-          g++ -std=c++17 -o test_gates tests/test_gates.cpp gates/gates.cpp
-          ./test_gates
+      - name: Build
+        run: cmake --build build
 
-      - name: Build and run adders tests
-        run: |
-          g++ -std=c++17 -o test_adders tests/alu/test_adders.cpp gates/gates.cpp datapath/adders.cpp utils/utils.cpp
-          ./test_adders
-
-      - name: Build and run bitwise tests
-        run: |
-          g++ -std=c++17 -o test_bitwise tests/alu/test_bitwise.cpp gates/gates.cpp datapath/bitwise.cpp utils/utils.cpp
-          ./test_bitwise
-
-      - name: Build and run register file tests
-        run: |
-          g++ -std=c++17 -o test_registers tests/registers/test_registers.cpp datapath/regfile.cpp memory/register.cpp memory/flipflop.cpp gates/gates.cpp utils/utils.cpp
-          ./test_registers
-
-      - name: Build and run clock tests
-        run: |
-          g++ -std=c++17 -o test_clock tests/test_clock.cpp clock/clock.cpp
-          ./test_clock
-
-      - name: Build and run flip-flop tests
-        run: |
-          g++ -std=c++17 -o test_flipflop tests/memory/test_flipflop.cpp memory/flipflop.cpp gates/gates.cpp
-          ./test_flipflop
-
-      - name: Build and run register tests
-        run: |
-          g++ -std=c++17 -o test_register tests/memory/test_register.cpp memory/register.cpp memory/flipflop.cpp gates/gates.cpp utils/utils.cpp
-          ./test_register
-
-      - name: Build and run memory tests
-        run: |
-          g++ -std=c++17 -o test_memory tests/memory/test_memory.cpp memory/memory.cpp memory/register.cpp memory/flipflop.cpp gates/gates.cpp utils/utils.cpp
-          ./test_memory
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure

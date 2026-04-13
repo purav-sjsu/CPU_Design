@@ -13,63 +13,26 @@ Goals: Design and implement a complete software CPU in C/C++, including its arch
 - **memory/** - Flip-flops, registers, memory
 - **clock/** - Clock cycle management
 - **utils/** - Helper functions
-- **tests/** -
+- **tests/** - Test files
 
 
 ## Build & Run Tests
 
-Requires C++17.
+Requires C++17 and CMake 3.16+.
 
-### Gates
-
+Configure the project (generates build files):
 ```bash
-g++ -std=c++17 -o test_gates tests/test_gates.cpp gates/gates.cpp && ./test_gates
+cmake -B build
 ```
 
-### Utils
-
+Compile all executables:
 ```bash
-g++ -std=c++17 -o test_utils tests/test_utils.cpp utils/utils.cpp && ./test_utils
+cmake --build build
 ```
 
-### Datapath
-
-Adders
+Run all tests:
 ```bash
-g++ -std=c++17 -o test_adders tests/alu/test_adders.cpp gates/gates.cpp datapath/adders.cpp utils/utils.cpp && ./test_adders
-```
-
-Bitwise Logic Ops
-```bash
-g++ -std=c++17 -o test_bitwise tests/alu/test_bitwise.cpp gates/gates.cpp datapath/bitwise.cpp utils/utils.cpp && ./test_bitwise
-```
-
-Register File
-```bash
-g++ -std=c++17 -o test_registers tests/registers/test_registers.cpp datapath/regfile.cpp memory/register.cpp memory/flipflop.cpp gates/gates.cpp utils/utils.cpp && ./test_registers
-```
-
-### Clock
-
-```bash
-g++ -std=c++17 -o test_clock tests/test_clock.cpp clock/clock.cpp && ./test_clock
-```
-
-### Memory
-
-D Flip-Flop
-```bash
-g++ -std=c++17 -o test_flipflop tests/memory/test_flipflop.cpp memory/flipflop.cpp gates/gates.cpp && ./test_flipflop
-```
-
-Register
-```bash
-g++ -std=c++17 -o test_register tests/memory/test_register.cpp memory/register.cpp memory/flipflop.cpp gates/gates.cpp utils/utils.cpp && ./test_register
-```
-
-Memory
-```bash
-g++ -std=c++17 -o test_memory tests/memory/test_memory.cpp memory/memory.cpp memory/register.cpp memory/flipflop.cpp gates/gates.cpp utils/utils.cpp && ./test_memory
+ctest --test-dir build --output-on-failure
 ```
 
 ## Team Members
