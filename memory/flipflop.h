@@ -5,7 +5,7 @@
 // D Flip-Flop
 class DFlipFlop {
 	public:
-		DFlipFlop(bool D = 0, bool enable = 0);
+		DFlipFlop();
 		void update(bool D, bool enable);
 		bool getQ() const;
 	private:

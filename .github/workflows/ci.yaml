@@ -36,3 +36,8 @@ jobs:
         run: |
           g++ -std=c++17 -o test_clock tests/test_clock.cpp clock/clock.cpp
           ./test_clock
+
+      - name: Build and run flip-flop tests
+        run: |
+          g++ -std=c++17 -o test_flipflop tests/memory/test_flipflop.cpp memory/flipflop.cpp gates/gates.cpp
+          ./test_flipflop

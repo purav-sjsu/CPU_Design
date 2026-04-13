@@ -1,9 +1,9 @@
 #include "flipflop.h"
 #include "../gates/gates.h"
 
-DFlipFlop::DFlipFlop(bool D, bool enable) {
+DFlipFlop::DFlipFlop() {
 	Q = 0;
-	update(D, enable);
+	notQ = 1;
 }
 
 void DFlipFlop::update(bool D, bool enable) {
@@ -12,8 +12,17 @@ void DFlipFlop::update(bool D, bool enable) {
 	bool set = NAND(S, enable).eval();
 	bool reset = NAND(R, enable).eval();
 
-	bool newQ = NAND(set, NOT(Q).eval()).eval();
-	bool newNotQ = NAND(reset, Q).eval();
+	// Iterate cross-coupled NANDs until the latch stabilizes
+	bool newQ = Q;
+	bool newNotQ = notQ;
+	for (int i = 0; i < 2; i++) {
+		newQ = NAND(set, newNotQ).eval();
+		newNotQ = NAND(reset, newQ).eval();
+	}
 	Q = newQ;
 	notQ = newNotQ;
+}
+
+bool DFlipFlop::getQ() const {
+	return Q;
 }
