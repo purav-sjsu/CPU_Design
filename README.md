@@ -49,8 +49,10 @@ g++ -std=c++17 -o test_clock tests/test_clock.cpp clock/clock.cpp && ./test_cloc
 
 # D Flip-Flop
 g++ -std=c++17 -o test_flipflop tests/memory/test_flipflop.cpp memory/flipflop.cpp gates/gates.cpp && ./test_flipflop
-```
 
+# Register
+g++ -std=c++17 -o test_register tests/memory/test_register.cpp memory/register.cpp memory/flipflop.cpp gates/gates.cpp utils/utils.cpp && ./test_register
+```
 
 ## Team Members
 
