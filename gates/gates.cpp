@@ -39,3 +39,13 @@ XOR::XOR(bool inputA, bool inputB)
 bool XOR::eval() {
 	return result;
 }
+
+// NAND gate
+NAND::NAND(bool inputA, bool inputB)
+	: A(inputA), B(inputB) {
+	result = NOT(AND(A, B).eval()).eval();
+}
+
+bool NAND::eval() {
+	return result;
+}

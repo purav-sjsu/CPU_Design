@@ -42,4 +42,14 @@ class XOR {
 		bool result;
 };
 
+class NAND {
+	public:
+		NAND(bool inputA, bool inputB);
+		bool eval();
+	private:
+		bool A;
+		bool B;
+		bool result;
+};
+
 #endif // GATES_H

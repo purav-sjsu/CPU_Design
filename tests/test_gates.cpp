@@ -34,6 +34,14 @@ void testNotGate() {
 	assert(NOT(1).eval() == 0);
 }
 
+// Test NAND gate
+void testNandGate() {
+	assert(NAND(0, 0).eval() == 1);
+	assert(NAND(0, 1).eval() == 1);
+	assert(NAND(1, 0).eval() == 1);
+	assert(NAND(1, 1).eval() == 0);
+}
+
 int main() {
 	std::cout << "Running gate tests\n";
 	std::cout << "(1/4) Testing AND gate\n";
@@ -44,6 +52,9 @@ int main() {
 	testXorGate();
 	std::cout << "(4/4) Testing NOT gate\n";
 	testNotGate();
+	std::cout << "All gate tests passed!\n\n";
+	std::cout << "(5/5) Testing NAND gate\n";
+	testNandGate();
 	std::cout << "All gate tests passed!\n\n";
 	return 0;
 }

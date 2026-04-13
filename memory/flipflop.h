@@ -1,6 +1,16 @@
 #ifndef FLIPFLOP_H
 #define FLIPFLOP_H
 
-// This file is a placeholder for the FlipFlop class.
+
+// D Flip-Flop
+class DFlipFlop {
+	public:
+		DFlipFlop(bool D = 0, bool enable = 0);
+		void update(bool D, bool enable);
+		bool getQ() const;
+	private:
+		bool Q; // Output
+		bool notQ; // Inverted Output
+};
 
 #endif // FLIPFLOP_H
