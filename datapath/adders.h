@@ -32,7 +32,8 @@ class FullAdder {
 //rightmost vector element is LSB
 class Adder {
 	public:
-		Adder(std::vector<bool> inputA, std::vector<bool> inputB);
+        // Modified to accept an optional carryIn (defaults to 0 so existing code doesn't break)
+		Adder(std::vector<bool> inputA, std::vector<bool> inputB, bool carryIn = false);
 		std::vector<bool> getSum();
 	private:
 		std::vector<bool> A;
@@ -40,4 +41,12 @@ class Adder {
 		std::vector<bool> sum;
 };
 
+// New Subtractor Class
+class Subtractor {
+    public:
+        Subtractor(std::vector<bool> inputA, std::vector<bool> inputB);
+        std::vector<bool> getDifference();
+    private:
+        std::vector<bool> difference;
+};
 #endif // ADDERS_H
