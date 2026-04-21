@@ -1,9 +1,11 @@
 #include "utils.h"
+#include <climits>
 
 // converts a non-negative integer to an unsigned binary vector
 // valid range: 0 to (2^size - 1)
 std::vector<bool> num2unsignedBinary(int value, int size) {
-	int maxVal = (1 << size) - 1;
+	// When size == 32, (1 << 32) is UB and wraps to 0; cap at INT_MAX instead
+	int maxVal = (size >= 32) ? INT_MAX : (1 << size) - 1;
 	if (value < 0 || value > maxVal)
 		throw std::out_of_range("value " + std::to_string(value) + " cannot be represented in " + std::to_string(size) + " unsigned bits");
 
