@@ -33,23 +33,38 @@ bool FullAdder::getCarryOut() {
 	return carryOut;
 }
 
-// Adder
-Adder::Adder(std::vector<bool> inputA, std::vector<bool> inputB)
+// Adder (Modified)
+Adder::Adder(std::vector<bool> inputA, std::vector<bool> inputB, bool initialCarryIn)
 	: A(inputA), B(inputB), sum(inputA.size(), 0) {
 	int lsb = inputA.size() - 1;
-	bool carryIn = 0;
+	bool currentCarry = initialCarryIn; // Start with our input carry
+    
 	for (int i = lsb; i >= 0; i--) {
-		if (i == lsb) {
-			HalfAdder halfAdder = HalfAdder(A[i], B[i]);
-			sum[i] = halfAdder.getSum();
-			carryIn = halfAdder.getCarryOut();
-			continue;
-		}
-		sum[i] = FullAdder(A[i], B[i], carryIn).getSum();
-		carryIn = FullAdder(A[i], B[i], carryIn).getCarryOut();
+        // We can just use a FullAdder for every bit now, bridging the initial carry-in
+        FullAdder fa(A[i], B[i], currentCarry);
+        sum[i] = fa.getSum();
+        currentCarry = fa.getCarryOut();
 	}
 }
 
 std::vector<bool> Adder::getSum() {
 	return sum;
+}
+
+// Subtractor (New)
+Subtractor::Subtractor(std::vector<bool> inputA, std::vector<bool> inputB) {
+    std::vector<bool> notB(inputB.size());
+    
+    // Invert B with bitwise NOT
+    for (size_t i = 0; i < inputB.size(); ++i) {
+        notB[i] = NOT(inputB[i]); 
+    }
+
+    // Add via existing Adder with carry-in forced to 1 (A + ~B + 1)
+    Adder add(inputA, notB, true); 
+    difference = add.getSum();
+}
+
+std::vector<bool> Subtractor::getDifference() {
+    return difference;
 }

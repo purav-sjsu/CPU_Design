@@ -14,6 +14,11 @@ set(MEMORY_SRC memory/memory.cpp)
 set(ADDERS_SRC datapath/adders.cpp)
 set(BITWISE_SRC datapath/bitwise.cpp)
 set(REGFILE_SRC datapath/regfile.cpp)
+set(SHIFTER_SRC datapath/shifter.cpp)
+set(MUX_SRC datapath/mux.cpp)
+set(FLAGS_SRC datapath/flags.cpp)
+
+
 
 # --- Test executables ---
 enable_testing()
@@ -27,6 +32,9 @@ add_executable(test_registers tests/registers/test_registers.cpp ${REGFILE_SRC} 
 add_executable(test_flipflop tests/memory/test_flipflop.cpp ${FLIPFLOP_SRC} ${GATES_SRC})
 add_executable(test_register tests/memory/test_register.cpp ${REGISTER_SRC} ${FLIPFLOP_SRC} ${GATES_SRC} ${UTILS_SRC})
 add_executable(test_memory tests/memory/test_memory.cpp ${MEMORY_SRC} ${REGISTER_SRC} ${FLIPFLOP_SRC} ${GATES_SRC} ${UTILS_SRC})
+add_executable(test_shifter tests/alu/test_shifter.cpp ${SHIFTER_SRC} ${GATES_SRC} ${UTILS_SRC})
+add_executable(test_mux tests/alu/test_mux.cpp ${MUX_SRC} ${GATES_SRC} ${UTILS_SRC})
+add_executable(test_flags tests/alu/test_flags.cpp ${FLAGS_SRC} ${FLIPFLOP_SRC} ${GATES_SRC} ${UTILS_SRC})
 
 # Register tests with CTest
 add_test(NAME utils COMMAND test_utils)
@@ -38,3 +46,6 @@ add_test(NAME registers COMMAND test_registers)
 add_test(NAME flipflop COMMAND test_flipflop)
 add_test(NAME register COMMAND test_register)
 add_test(NAME memory COMMAND test_memory)
+add_test(NAME shifter COMMAND test_shifter)
+add_test(NAME mux COMMAND test_mux)
+add_test(NAME flags COMMAND test_flags)

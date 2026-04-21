@@ -1,5 +1,6 @@
 #include "utils.h"
-
+#include <string>
+#include <stdexcept>
 // converts a non-negative integer to an unsigned binary vector
 // valid range: 0 to (2^size - 1)
 std::vector<bool> num2unsignedBinary(int value, int size) {

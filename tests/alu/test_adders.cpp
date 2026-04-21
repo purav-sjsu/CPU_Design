@@ -78,6 +78,21 @@ void testAdder() {
 	assert(unsignedBinaryToNum(a6.getSum()) == 0);
 }
 
+// Test 16-bit subtractor
+void testSubtractor() {
+	// 5 - 3 = 2
+	Subtractor s0(num2unsignedBinary(5, 16), num2unsignedBinary(3, 16));
+	assert(unsignedBinaryToNum(s0.getDifference()) == 2);
+
+	// 10 - 10 = 0
+	Subtractor s1(num2unsignedBinary(10, 16), num2unsignedBinary(10, 16));
+	assert(unsignedBinaryToNum(s1.getDifference()) == 0);
+
+	// 3 - 5 = -2 (In 16-bit two's complement, -2 represents as 65534 unsigned)
+	Subtractor s2(num2unsignedBinary(3, 16), num2unsignedBinary(5, 16));
+	assert(unsignedBinaryToNum(s2.getDifference()) == 65534);
+}
+
 int main() {
 	std::cout << "Running adder tests\n";
 	std::cout << "(1/3) Testing half adder\n";
@@ -86,6 +101,8 @@ int main() {
 	testFullAdder();
 	std::cout << "(3/3) Testing adder\n";
 	testAdder();
+	std::cout << "(4/4) Testing subtractor\n";
+	testSubtractor();
 	std::cout << "All adder tests passed!\n\n";
 	return 0;
 }
