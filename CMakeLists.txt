@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 3.16)
-project(CPU_Design LANGUAGES CXX)
+project(CPU_Design LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 
 # --- Module source files ---
 set(GATES_SRC gates/gates.cpp)
@@ -49,3 +52,16 @@ add_test(NAME memory COMMAND test_memory)
 add_test(NAME shifter COMMAND test_shifter)
 add_test(NAME mux COMMAND test_mux)
 add_test(NAME flags COMMAND test_flags)
+
+# --- Demo programs (standalone, no project dependencies) ---
+add_executable(demo_hello_world    demos/cpp/hello_world.cpp)
+add_executable(demo_fibonacci_iter demos/cpp/fibonacci_iter.cpp)
+add_executable(demo_fibonacci_rec  demos/cpp/fibonacci_rec.cpp)
+add_executable(demo_factorial_iter demos/cpp/factorial_iter.cpp)
+add_executable(demo_factorial_rec  demos/cpp/factorial_rec.cpp)
+
+add_executable(demo_c_hello_world    demos/c/hello_world.c)
+add_executable(demo_c_fibonacci_iter demos/c/fibonacci_iter.c)
+add_executable(demo_c_fibonacci_rec  demos/c/fibonacci_rec.c)
+add_executable(demo_c_factorial_iter demos/c/factorial_iter.c)
+add_executable(demo_c_factorial_rec  demos/c/factorial_rec.c)
