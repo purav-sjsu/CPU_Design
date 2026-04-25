@@ -6,7 +6,7 @@
 
 class RegFile {
 	public:
-		RegFile(unsigned int numRegisters = 8, unsigned int wordSize = 16);
+		RegFile(unsigned int numRegisters = 8, unsigned int wordSize = 32);
 		void write(unsigned int address, const std::vector<bool>& value);
 		std::vector<bool> read(unsigned int address) const;
 

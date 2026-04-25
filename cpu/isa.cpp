@@ -1,5 +1,6 @@
 #include "isa.h"
 
+// Extract bits [start, end] from a 32-bit instruction word and return as unsigned int.
 unsigned int extractBits(const std::vector<bool>& word, int start, int end) {
     unsigned int result = 0;
     for (int i = start; i <= end; ++i)
@@ -7,14 +8,17 @@ unsigned int extractBits(const std::vector<bool>& word, int start, int end) {
     return result;
 }
 
+// Extract bits [start, end] from a 32-bit instruction word and return as vector<bool>.
 std::vector<bool> extractBitsVec(const std::vector<bool>& word, int start, int end) {
     return std::vector<bool>(word.begin() + start, word.begin() + end + 1);
 }
 
+// Decode a 32-bit instruction word into its fields.
 Instruction decode(const std::vector<bool>& word) {
     Instruction instr;
     instr.opcode = static_cast<uint8_t>(extractBits(word, 0, 5));
 
+    // Decode R-type, J-type, and I-type instructions based on opcode
     if (instr.opcode == static_cast<uint8_t>(Opcode::RTYPE)) {
         instr.type  = InstrType::R;
         instr.rs    = static_cast<uint8_t>(extractBits(word, 6,  10));

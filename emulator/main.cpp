@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
         // Load binary
         auto rawWords = loadBinary(binPath);
 
-        // Convert uint32_t → vector<bool>
+        // Convert uint32_t vector to  vector<bool>
         std::vector<std::vector<bool>> program;
         program.reserve(rawWords.size());
         for (uint32_t w : rawWords) program.push_back(wordToBits(w));

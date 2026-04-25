@@ -16,6 +16,7 @@ enum class ALUOp : uint8_t {
     SLL  = 7,   // A << lower5(B)
     SRL  = 8,   // A >> lower5(B)  logical
     SRA  = 9,   // A >> lower5(B)  arithmetic (sign-extended)
+    // MULT = 10,  // HI/LO = A * B (signed)
 };
 
 struct ALUResult {

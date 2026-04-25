@@ -4,7 +4,9 @@
 #include <cctype>
 #include <map>
 
-// ── Register name table ───────────────────────────────────────────────────────
+// Register name table for resolveRegister()
+// Name and index are based on MIPS register conventions, with aliases for
+// numeric names ($0, $1, …) and common names ($t0, $ra, etc.)
 static const std::map<std::string, int> REG_NAMES = {
     {"$zero",0},{"$0",0},  {"$at",1},  {"$1",1},
     {"$v0",2},  {"$v1",3},  {"$2",2},  {"$3",3},
@@ -26,6 +28,7 @@ static const std::map<std::string, int> REG_NAMES = {
     {"$ra",31}, {"$31",31},
 };
 
+// Resolve a register name ($t0, $ra, $0 …) to its integer index 0-31.
 int resolveRegister(const std::string& name) {
     auto it = REG_NAMES.find(name);
     if (it == REG_NAMES.end())
@@ -33,6 +36,7 @@ int resolveRegister(const std::string& name) {
     return it->second;
 }
 
+// Parse an integer literal (decimal, 0xHEX, or a label looked up in symtab).
 int parseImmediate(const std::string& s, bool* isLabel) {
     if (isLabel) *isLabel = false;
     if (s.empty()) return 0;
@@ -45,12 +49,13 @@ int parseImmediate(const std::string& s, bool* isLabel) {
     return 0; // caller must resolve using symbol table
 }
 
-// ── Parser ────────────────────────────────────────────────────────────────────
+// Parse tokens (from tokenise()) into a list of ParsedLines.
 std::vector<ParsedLine> parse(const std::vector<Token>& tokens) {
     std::vector<ParsedLine> lines;
     ParsedLine current;
     bool inInstruction = false;
 
+    // Flush the current line to the output list if it's not empty, and reset it.
     auto flush = [&]() {
         if (current.kind != LineKind::EMPTY || !current.label.empty()) {
             lines.push_back(current);
@@ -59,23 +64,28 @@ std::vector<ParsedLine> parse(const std::vector<Token>& tokens) {
         inInstruction = false;
     };
 
+    
     for (size_t i = 0; i < tokens.size(); ++i) {
         const Token& tok = tokens[i];
 
+        // If END_OF_LINE, flush the current line and start a new one
         if (tok.type == TokenType::END_OF_LINE) {
             flush();
             continue;
         }
 
+        // Save the line number for error reporting in the ParsedLine struct
         current.lineNumber = tok.line;
 
         switch (tok.type) {
             case TokenType::LABEL_DEF:
-                // A label may appear alone on a line or before an instruction
+                // Save the label
                 current.label = tok.value;
                 break;
 
             case TokenType::MNEMONIC:
+                // Start of an instruction line
+                // Save the mnemonic and set the line kind to INSTRUCTION
                 current.kind     = LineKind::INSTRUCTION;
                 current.mnemonic = tok.value;
                 // Lowercase for uniform comparison
@@ -85,6 +95,8 @@ std::vector<ParsedLine> parse(const std::vector<Token>& tokens) {
                 break;
 
             case TokenType::DIRECTIVE:
+                // Start of a directive line
+                // Save the directive name and set the line kind to DIRECTIVE
                 current.kind     = LineKind::DIRECTIVE;
                 current.mnemonic = tok.value;
                 inInstruction    = true;
@@ -94,11 +106,13 @@ std::vector<ParsedLine> parse(const std::vector<Token>& tokens) {
             case TokenType::IMMEDIATE:
             case TokenType::LABEL_REF:
             case TokenType::STRING:
+                // Part of the operands for the current instruction/directive
                 if (inInstruction)
                     current.operands.push_back(tok.value);
                 break;
 
             // Parentheses modify the previous operand (offset(base) syntax)
+            // e.g. "lw $t0, 4($sp)" tokenises to MNEMONIC=lw, REGISTER=$t0, IMMEDIATE=4, LPAREN, REGISTER=$sp, RPAREN
             case TokenType::LPAREN:
                 // The next token is the base register; merge it with last operand
                 if (!current.operands.empty() && i + 1 < tokens.size()) {

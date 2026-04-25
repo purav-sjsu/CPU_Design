@@ -4,10 +4,10 @@
 #include <vector>
 #include <cstdint>
 
-// ── Instruction types ────────────────────────────────────────────────────────
+//  Instruction types
 enum class InstrType { R, I, J, UNKNOWN };
 
-// ── R-type funct codes ───────────────────────────────────────────────────────
+// R-type funct codes
 enum class Funct : uint8_t {
     SLL  = 0b000000,
     SRL  = 0b000010,
@@ -22,9 +22,13 @@ enum class Funct : uint8_t {
     XOR  = 0b100110,
     NOR  = 0b100111,
     SLT  = 0b101010,
+    MULT = 0b011000,
+    MULTU= 0b011001,
+    MFHI = 0b010000,
+    MFLO = 0b010010,
 };
 
-// ── Opcodes (I-type / J-type; R-type all use opcode 0) ───────────────────────
+//  Opcodes (I-type / J-type; R-type all use opcode 0)
 enum class Opcode : uint8_t {
     RTYPE = 0b000000,
     J     = 0b000010,
@@ -42,13 +46,13 @@ enum class Opcode : uint8_t {
     HALT  = 0b111111,  // custom: stops the CPU
 };
 
-// ── Decoded instruction ───────────────────────────────────────────────────────
+//  Decoded instruction fields
 struct Instruction {
     InstrType type    = InstrType::UNKNOWN;
     uint8_t   opcode  = 0;
-    uint8_t   rs      = 0;   // source register 1     (bits 25-21)
+    uint8_t   rs      = 0;   // source register 1 (bits 25-21)
     uint8_t   rt      = 0;   // source register 2 / dest for I-type (bits 20-16)
-    uint8_t   rd      = 0;   // destination register  (bits 15-11, R-type)
+    uint8_t   rd      = 0;   // destination register(bits 15-11, R-type)
     uint8_t   shamt   = 0;   // shift amount          (bits 10-6,  R-type)
     uint8_t   funct   = 0;   // function code         (bits  5-0,  R-type)
     int16_t   imm16   = 0;   // signed 16-bit immediate (I-type)

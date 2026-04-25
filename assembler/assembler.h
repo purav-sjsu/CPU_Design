@@ -13,7 +13,7 @@ std::vector<uint32_t> assemble(const std::vector<std::string>& sourceLines);
 // Convenience: read a .asm file from disk, assemble it, return machine words.
 std::vector<uint32_t> assembleFile(const std::string& path);
 
-// Write assembled words as raw big-endian binary to a file.
+// Write assembled words as binary to a file.
 void writeBinary(const std::string& path, const std::vector<uint32_t>& words);
 
 #endif // ASSEMBLER_H

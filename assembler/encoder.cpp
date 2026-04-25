@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <cctype>
 
-// ── Bit-packing helpers ───────────────────────────────────────────────────────
+// Function to encode an R-type instruction
 uint32_t encodeR(uint8_t rs, uint8_t rt, uint8_t rd, uint8_t shamt, uint8_t funct) {
     return (0u          << 26) |
            ((rs & 0x1F) << 21) |
@@ -14,6 +14,7 @@ uint32_t encodeR(uint8_t rs, uint8_t rt, uint8_t rd, uint8_t shamt, uint8_t func
            (funct & 0x3F);
 }
 
+// Function to encode an I-type instruction
 uint32_t encodeI(uint8_t opcode, uint8_t rs, uint8_t rt, uint16_t imm16) {
     return ((opcode& 0x3F) << 26) |
            ((rs    & 0x1F) << 21) |
@@ -21,6 +22,7 @@ uint32_t encodeI(uint8_t opcode, uint8_t rs, uint8_t rt, uint16_t imm16) {
            (imm16  & 0xFFFF);
 }
 
+// Function to encode a J-type instruction
 uint32_t encodeJ(uint8_t opcode, uint32_t target26) {
     return ((opcode & 0x3F) << 26) | (target26 & 0x03FFFFFF);
 }
@@ -39,7 +41,7 @@ static int resolveOperand(const std::string& s,
     return v;
 }
 
-// Parse "offset($base)" → offset and base register
+// Parse "offset($base)" into offset and base register
 static void parseMemOperand(const std::string& op, int& offset, int& base) {
     size_t lp = op.find('(');
     if (lp == std::string::npos)
@@ -51,14 +53,15 @@ static void parseMemOperand(const std::string& op, int& offset, int& base) {
     base   = resolveRegister(baseStr);
 }
 
-// ── Main encode ───────────────────────────────────────────────────────────────
+// Main encoding function: takes a parsed instruction line, symbol table, and current address,
+// and returns the 32-bit machine code word.
 uint32_t encode(const ParsedLine& pl,
                 const std::map<std::string, unsigned int>& symtab,
                 unsigned int currentAddr) {
     const std::string& mn  = pl.mnemonic;
     const auto& ops = pl.operands;
 
-    // ── R-type ────────────────────────────────────────────────────────────────
+    // R-type instructions: add, sub, and, or, xor, nor, slt, sll, srl, sra, jr, jalr
     if (mn=="add"  || mn=="addu") return encodeR(resolveRegister(ops[1]), resolveRegister(ops[2]), resolveRegister(ops[0]), 0, mn=="add" ? 0x20 : 0x21);
     if (mn=="sub"  || mn=="subu") return encodeR(resolveRegister(ops[1]), resolveRegister(ops[2]), resolveRegister(ops[0]), 0, mn=="sub" ? 0x22 : 0x23);
     if (mn=="and")  return encodeR(resolveRegister(ops[1]), resolveRegister(ops[2]), resolveRegister(ops[0]), 0, 0x24);
@@ -77,7 +80,13 @@ uint32_t encode(const ParsedLine& pl,
     if (mn=="jr")   return encodeR(resolveRegister(ops[0]), 0, 0,  0, 0x08);
     if (mn=="jalr") return encodeR(resolveRegister(ops[1]), 0, resolveRegister(ops[0]), 0, 0x09);
 
-    // ── I-type arithmetic ─────────────────────────────────────────────────────
+    // Multiplication instructions: mult, multu, mfhi, mflo
+    if (mn=="mult")  return encodeR(resolveRegister(ops[0]), resolveRegister(ops[1]), 0, 0, 0x18);
+    if (mn=="multu") return encodeR(resolveRegister(ops[0]), resolveRegister(ops[1]), 0, 0, 0x19);
+    if (mn=="mfhi")  return encodeR(0, 0, resolveRegister(ops[0]), 0, 0x10);
+    if (mn=="mflo")  return encodeR(0, 0, resolveRegister(ops[0]), 0, 0x12);
+
+    //  I-type arithmetic
     if (mn=="addi")  return encodeI(0x08, resolveRegister(ops[1]), resolveRegister(ops[0]), (uint16_t)parseImmediate(ops[2]));
     if (mn=="addiu") return encodeI(0x09, resolveRegister(ops[1]), resolveRegister(ops[0]), (uint16_t)parseImmediate(ops[2]));
     if (mn=="slti")  return encodeI(0x0A, resolveRegister(ops[1]), resolveRegister(ops[0]), (uint16_t)parseImmediate(ops[2]));
@@ -86,7 +95,7 @@ uint32_t encode(const ParsedLine& pl,
     if (mn=="xori")  return encodeI(0x0E, resolveRegister(ops[1]), resolveRegister(ops[0]), (uint16_t)parseImmediate(ops[2]));
     if (mn=="lui")   return encodeI(0x0F, 0, resolveRegister(ops[0]), (uint16_t)parseImmediate(ops[1]));
 
-    // ── I-type memory: lw/sw $rt, offset($rs) ────────────────────────────────
+    // I-type memory: lw/sw $rt, offset($rs)
     if (mn=="lw") {
         int offset, base;
         parseMemOperand(ops[1], offset, base);
@@ -98,7 +107,7 @@ uint32_t encode(const ParsedLine& pl,
         return encodeI(0x2B, base, resolveRegister(ops[0]), (uint16_t)offset);
     }
 
-    // ── Branches: beq/bne $rs, $rt, label ────────────────────────────────────
+    // Branches: beq/bne $rs, $rt, label
     if (mn=="beq" || mn=="bne") {
         int target = resolveOperand(ops[2], symtab);
         // Branch offset = target - (currentAddr + 1)  [word-addressed, no <<2]
@@ -107,11 +116,11 @@ uint32_t encode(const ParsedLine& pl,
         return encodeI(op, resolveRegister(ops[0]), resolveRegister(ops[1]), (uint16_t)offset);
     }
 
-    // ── J-type ────────────────────────────────────────────────────────────────
+    // J-type j/jal label
     if (mn=="j")   return encodeJ(0x02, (uint32_t)resolveOperand(ops[0], symtab));
     if (mn=="jal") return encodeJ(0x03, (uint32_t)resolveOperand(ops[0], symtab));
 
-    // ── Pseudo-instructions ───────────────────────────────────────────────────
+    //  Pseudo-instructions 
     // nop → sll $0, $0, 0
     if (mn=="nop")  return 0x00000000;
     // halt → opcode 0x3F

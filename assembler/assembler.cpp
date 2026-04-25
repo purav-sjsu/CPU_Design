@@ -7,21 +7,27 @@
 #include <sstream>
 #include <stdexcept>
 
-// ── Two-pass assembler ────────────────────────────────────────────────────────
+// Assemble a source file (given as a list of lines) into a list of 32-bit words.
+// The output vector is indexed from 0; word[0] goes to TEXT_START in memory.
 std::vector<uint32_t> assemble(const std::vector<std::string>& sourceLines) {
-    // Tokenise + parse
+    // Tokenise the source lines into a flat list of tokens
+    // Calling from lexer.cpp: tokenise() function
     auto tokens = tokenise(sourceLines);
+
+    // Parse the token stream into structured lines (instructions and directives)
+    // Calling from parser.cpp: parse() function
     auto parsed = parse(tokens);
 
-    // ── Pass 1: assign addresses and build symbol table ───────────────────────
+    // Build symbol table and assign addresses to instructions and data
     std::map<std::string, unsigned int> symtab;
-    unsigned int textAddr = TEXT_START;
-    unsigned int dataAddr = DATA_START;
+    unsigned int textAddr = TEXT_START; // Text section starts at TEXT_START
+    unsigned int dataAddr = DATA_START; // Data section starts at DATA_START
     bool inData = false;
 
     // Data section words (strings / .word directives)
     std::vector<std::pair<unsigned int, uint32_t>> dataWords;
 
+    // assign addresses to instructions and data, and build symbol table for labels
     for (auto& pl : parsed) {
         if (pl.kind == LineKind::DIRECTIVE) {
             std::string dir = pl.mnemonic;
@@ -67,11 +73,10 @@ std::vector<uint32_t> assemble(const std::vector<std::string>& sourceLines) {
         ++textAddr;
     }
 
-    // ── Pass 2: encode all instructions ──────────────────────────────────────
+    // encode all instructions 
     // Pre-allocate output covering text + data
     unsigned int maxAddr = textAddr > dataAddr ? textAddr : dataAddr;
     std::vector<uint32_t> words(maxAddr, 0u);
-
     for (const auto& pl : parsed) {
         if (pl.kind != LineKind::INSTRUCTION) continue;
         uint32_t word = encode(pl, symtab, pl.address);
@@ -86,16 +91,20 @@ std::vector<uint32_t> assemble(const std::vector<std::string>& sourceLines) {
     return words;
 }
 
-// ── File I/O ──────────────────────────────────────────────────────────────────
+// Function to read a .asm file from disk, assemble it, and return the machine words.
 std::vector<uint32_t> assembleFile(const std::string& path) {
     std::ifstream f(path);
     if (!f) throw std::runtime_error("Cannot open: " + path);
     std::vector<std::string> lines;
     std::string line;
-    while (std::getline(f, line)) lines.push_back(line);
+    // Read the file line by line into a vector of strings
+    while (std::getline(f, line)) {
+        lines.push_back(line);
+    }
     return assemble(lines);
 }
 
+// Function to write assembled words as raw binary to a file.
 void writeBinary(const std::string& path, const std::vector<uint32_t>& words) {
     std::ofstream f(path, std::ios::binary);
     if (!f) throw std::runtime_error("Cannot write: " + path);

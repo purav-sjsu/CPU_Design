@@ -18,6 +18,7 @@ set(ADDERS_SRC      datapath/adders.cpp)
 set(BITWISE_SRC     datapath/bitwise.cpp)
 set(REGFILE_SRC     datapath/regfile.cpp)
 set(SHIFTER_SRC     datapath/shifter.cpp)
+set(MULTIPLIER_SRC  datapath/multiplier.cpp)
 set(MUX_SRC         datapath/mux.cpp)
 set(FLAGS_SRC       datapath/flags.cpp)
 set(SIGNEXT_SRC     datapath/sign_extend.cpp)
@@ -39,7 +40,8 @@ set(LOADER_SRC      emulator/loader.cpp)
 # Convenience groupings
 set(DATAPATH_ALL
     ${GATES_SRC} ${UTILS_SRC} ${ADDERS_SRC} ${BITWISE_SRC}
-    ${REGFILE_SRC} ${MUX_SRC} ${SIGNEXT_SRC} ${ALU_SRC})
+    ${REGFILE_SRC} ${MUX_SRC} ${SIGNEXT_SRC} ${SHIFTER_SRC}
+    ${MULTIPLIER_SRC} ${ALU_SRC})
 
 set(MEMORY_ALL
     ${FLIPFLOP_SRC} ${REGISTER_SRC} ${MEMORY_SRC})

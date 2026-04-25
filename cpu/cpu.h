@@ -35,6 +35,7 @@ public:
 private:
     Memory  memory;
     RegFile regfile;
+    RegFile multRegFile; // separate register file for HI/LO used by MULT/MULTU
     ALU     alu;
     Clock   clock;
     ControlUnit cu;

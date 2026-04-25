@@ -23,21 +23,25 @@ struct ControlSignals {
     uint8_t regDst    = 0;      // 0=rt (I-type), 1=rd (R-type), 2=$ra (JAL)
     bool    aluSrc    = false;  // false=rt, true=sign-extended immediate
     bool    zeroImm   = false;  // use zero-extend instead of sign-extend (AND/OR/XOR I)
-    uint8_t memToReg  = 0;      // 0=ALU result, 1=memory read, 2=PC+1 (JAL)
-    bool    memRead   = false;
-    bool    memWrite  = false;
-    bool    branch    = false;
-    bool    jump      = false;
-    bool    jr        = false;
-    bool    jal       = false;
+    uint8_t memToReg  = 0;      // 0=ALU result, 1=memory read, 2=PC+1 (JAL), 3=HI/LO (MFHI/MFLO)
+    bool    memRead   = false;  // read from memory
+    bool    memWrite  = false;  // write to memory
+    bool    branch    = false;  // true for BEQ/BNE (used with ALU zero flag)
+    bool    jump      = false;  // true for J/JAL
+    bool    jr        = false;  // true for JR
+    bool    jal       = false;  // true for JAL
     bool    lui       = false;  // load upper immediate (handled without ALU)
+    bool    mult      = false;  // true for MULT/MULTU (handled as separate block since result widths are different)
+    bool    multRegWrite = false; // true for MULT/MULTU (writes to HI/LO instead of regfile)
+    bool    mflo     = false;  // true for MFLO (read from LO)
+    bool    mfhi     = false;  // true for MFHI (read from HI)
     bool    halt      = false;
     ALUOp   aluOp     = ALUOp::ADD;
 };
 
 class ControlUnit {
 public:
-    ControlUnit(Memory& mem, RegFile& rf, ALU& alu, Clock& clk);
+    ControlUnit(Memory& mem, RegFile& rf, ALU& alu, Clock& clk, RegFile& multRf);
 
     // Execute one Fetch / Decode / Execute / Writeback cycle.
     void step();
@@ -49,12 +53,13 @@ public:
 private:
     Memory&  memory;
     RegFile& regfile;
+    RegFile& multRf;
     ALU&     alu;
     Clock&   clock;
 
-    unsigned int pc      = TEXT_START;
-    bool         halted  = false;
-    CPUFlags     flags;
+    unsigned int pc = TEXT_START;   // program counter starts at TEXT_START
+    bool         halted  = false;   // HALT instruction sets this to true
+    CPUFlags     flags;             // Updated after every ALU operation; used for branches and JR
 
     ControlSignals generateControlSignals(const Instruction& instr) const;
     ALUOp          functToALUOp(uint8_t funct) const;

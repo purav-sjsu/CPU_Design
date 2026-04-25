@@ -4,7 +4,7 @@
 #include <iomanip>
 
 static void printUsage(const char* prog) {
-    std::cerr << "Usage: " << prog << " <source.asm> [-o output.bin] [--hex]\n"
+    std::cerr << "Usage: " << prog << " <source.asm> [-o output.bin]\n"
               << "  --hex   print hex listing to stdout instead of writing binary\n";
 }
 
@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
             }
         } else {
             writeBinary(outputPath, words);
-            std::cout << "Assembled " << words.size() << " words → " << outputPath << "\n";
+            std::cout << "Assembled " << words.size() << " words to " << outputPath << "\n";
         }
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << "\n";
