@@ -9,13 +9,8 @@ void testMux2To1() {
     std::vector<bool> A = num2unsignedBinary(10, 16);
     std::vector<bool> B = num2unsignedBinary(20, 16);
 
-    // Select A
-    Mux2To1 mux0(A, B, false);
-    assert(unsignedBinaryToNum(mux0.getOutput()) == 10);
-
-    // Select B
-    Mux2To1 mux1(A, B, true);
-    assert(unsignedBinaryToNum(mux1.getOutput()) == 20);
+    assert(unsignedBinaryToNum(mux2(A, B, false)) == 10);
+    assert(unsignedBinaryToNum(mux2(A, B, true))  == 20);
 }
 
 void testMux4To1() {
@@ -24,21 +19,10 @@ void testMux4To1() {
     std::vector<bool> C = num2unsignedBinary(30, 16);
     std::vector<bool> D = num2unsignedBinary(40, 16);
 
-    // sel = 00 -> A
-    Mux4To1 mux0(A, B, C, D, {false, false});
-    assert(unsignedBinaryToNum(mux0.getOutput()) == 10);
-
-    // sel = 01 -> B (assuming sel[0] is LSB)
-    Mux4To1 mux1(A, B, C, D, {true, false});
-    assert(unsignedBinaryToNum(mux1.getOutput()) == 20);
-
-    // sel = 10 -> C
-    Mux4To1 mux2(A, B, C, D, {false, true});
-    assert(unsignedBinaryToNum(mux2.getOutput()) == 30);
-
-    // sel = 11 -> D
-    Mux4To1 mux3(A, B, C, D, {true, true});
-    assert(unsignedBinaryToNum(mux3.getOutput()) == 40);
+    assert(unsignedBinaryToNum(mux4(A, B, C, D, 0)) == 10);
+    assert(unsignedBinaryToNum(mux4(A, B, C, D, 1)) == 20);
+    assert(unsignedBinaryToNum(mux4(A, B, C, D, 2)) == 30);
+    assert(unsignedBinaryToNum(mux4(A, B, C, D, 3)) == 40);
 }
 
 int main() {

@@ -2,24 +2,18 @@
 #define MUX_H
 
 #include <vector>
+#include <cstdint>
 
-class Mux2To1 {
-    public:
-        Mux2To1(std::vector<bool> inputA, std::vector<bool> inputB, bool sel);
-        std::vector<bool> getOutput();
-    private:
-        std::vector<bool> output;
-};
+// 2-to-1 multiplexer: sel=false → a, sel=true → b
+std::vector<bool> mux2(const std::vector<bool>& a,
+                        const std::vector<bool>& b,
+                        bool sel);
 
-class Mux4To1 {
-    public:
-        // sel is a 2-bit vector where sel[1] is MSB and sel[0] is LSB
-        Mux4To1(std::vector<bool> inputA, std::vector<bool> inputB, 
-                std::vector<bool> inputC, std::vector<bool> inputD, 
-                std::vector<bool> sel);
-        std::vector<bool> getOutput();
-    private:
-        std::vector<bool> output;
-};
+// 4-to-1 multiplexer: sel 0→a, 1→b, 2→c, 3→d
+std::vector<bool> mux4(const std::vector<bool>& a,
+                        const std::vector<bool>& b,
+                        const std::vector<bool>& c,
+                        const std::vector<bool>& d,
+                        uint8_t sel);
 
 #endif // MUX_H
