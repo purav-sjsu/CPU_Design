@@ -7,6 +7,7 @@
 #include "../datapath/regfile.h"
 #include "../memory/memory.h"
 #include "../clock/clock.h"
+#include <cstdint>
 
 // Top-level CPU: owns all components and exposes a simple run interface.
 class CPU {
@@ -28,16 +29,19 @@ public:
     // Print all register values to stdout.
     void dumpRegisters() const;
 
-    bool     isHalted()  const;
+    bool isHalted() const;
     uint64_t getCycles() const;
-    CPUFlags getFlags()  const;
+    CPUFlags getFlags() const;
+    unsigned int getPC() const;
+    uint32_t getMemoryWord(unsigned int addr) const;
+    uint32_t getRegister(unsigned int idx) const;
 
 private:
     Memory  memory;
     RegFile regfile;
     RegFile multRegFile; // separate register file for HI/LO used by MULT/MULTU
-    ALU     alu;
-    Clock   clock;
+    ALU alu;
+    Clock clock;
     ControlUnit cu;
 };
 

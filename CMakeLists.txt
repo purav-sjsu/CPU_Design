@@ -36,6 +36,7 @@ set(ENCODER_SRC     assembler/encoder.cpp)
 set(ASSEMBLER_SRC   assembler/assembler.cpp)
 
 set(LOADER_SRC      emulator/loader.cpp)
+set(DEBUG_SRC       emulator/debug.cpp)
 
 # Convenience groupings
 set(DATAPATH_ALL
@@ -55,7 +56,7 @@ set(ASSEMBLER_ALL
 
 # ── Executables ────────────────────────────────────────────────────────────────
 add_executable(assembler assembler/main.cpp ${ASSEMBLER_ALL} ${UTILS_SRC})
-add_executable(emulator  emulator/main.cpp  ${LOADER_SRC} ${CPU_ALL} ${UTILS_SRC})
+add_executable(emulator  emulator/main.cpp  ${LOADER_SRC} ${DEBUG_SRC} ${CPU_ALL} ${UTILS_SRC})
 
 # ── Tests ──────────────────────────────────────────────────────────────────────
 enable_testing()
