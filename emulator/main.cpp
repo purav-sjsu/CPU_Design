@@ -36,23 +36,31 @@ int main(int argc, char* argv[]) {
     if (binPath.empty()) { printUsage(argv[0]); return 1; }
 
     try {
+        std::cerr << "[emulator] Loading " << binPath << "\n";
+
         auto rawWords = loadBinary(binPath);
         std::vector<std::vector<bool>> program;
         program.reserve(rawWords.size());
         for (uint32_t w : rawWords) program.push_back(wordToBits(w));
 
-        setMMIOInputWord(static_cast<uint32_t>(inputArg >= 0 ? inputArg : 4));
+        std::cerr << "[emulator] " << rawWords.size() << " words loaded into memory\n";
+
+        uint32_t mmioVal = static_cast<uint32_t>(inputArg >= 0 ? inputArg : 4);
+        setMMIOInputWord(mmioVal);
+        std::cerr << "[emulator] MMIO_IN loaded with " << mmioVal << "\n";
 
         CPU cpu;
         cpu.load(program);
+        std::cerr << "[emulator] CPU initialized\n\n";
 
         if (debugMode) {
+            std::cerr << "[emulator] Running in debug mode\n";
             runDebug(cpu, maxCycles);
         } else {
             cpu.run(maxCycles);
         }
 
-        std::cerr << "\n[CPU halted after " << cpu.getCycles() << " cycles]\n";
+        std::cerr << "\n[emulator] Halted after " << cpu.getCycles() << " cycles\n";
 
         if (dumpRegs) cpu.dumpRegisters();
         if (dumpMem)  cpu.dumpMemory(TEXT_START, DATA_END);
