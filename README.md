@@ -1,11 +1,157 @@
 # CPU Design
 
-Goals: Design and implement a complete software CPU in C/C++, including its architecture, ISA, emulator, assembler, and demo programs.
+**Goals**: Design and implement a complete software CPU in C/C++, including its architecture, ISA, emulator, assembler, and demo programs.
 
-> Design Assumptions
+## Setup
+
+Before running demo programs we have to compile the emulator and assemble the program binaries
+
+> Requires C++17 and CMake 3.16+.
+
+### Emulator
+
+Configure the project (generates build files) and compile all executables:
+  ```bash
+  cmake -B build && cmake --build build
+  ```
+
+### Assemble programs
+
+Assemble the demo programs into runnable binaries
+
+1. Assemble Hello World program
+```bash
+./build/assembler programs/hello.asm -o programs/hello.bin
+```
+
+2. Assemble Fibonacci program
+```bash
+./build/assembler programs/fibonacci.asm -o programs/fibonacci.bin
+```
+
+3. Assemble Factorial recursive program
+```bash
+./build/assembler programs/recursive.asm -o programs/recursive.bin
+```
+
+Optionally:
+
+Print a hex listing to stdout instead of writing a binary file:
+  ```bash
+  ./build/assembler programs/hello.asm --hex
+  ```
+
+### Run demo programs
+
+1. Hello World:
+```bash
+./build/emulator programs/hello.bin
+```
+
+2. Fibonacci:
+```bash
+./build/emulator programs/fibonacci.bin           # default n=4, prints 4 terms
+./build/emulator programs/fibonacci.bin --arg 10  # n=10, prints 10 terms
+```
+
+3. Factorial (recursive):
+```bash
+./build/emulator programs/recursive.bin           # default n=4, fact(4) = 24
+./build/emulator programs/recursive.bin --arg 6   # n=6, fact(6) = 720
+```
+
+## Debug
+
+Helpful debugging commands
+
+Run programs in debug mode:
+  ```bash
+  ./build/emulator programs/recursive.bin --debug
+
+  ./build/emulator programs/recursive.bin --debug --arg 6
+  ```
+
+Each cycle writes CPU state to `tmp/debug.json` — registers, memory, PC, and current instruction in decimal/hex/binary.
+
+Dump register contents after execution:
+  ```bash
+  ./build/emulator programs/recursive.bin --dump-regs
+  ```
+
+Dump memory contents after execution:
+  ```bash
+  ./build/emulator programs/recursive.bin --dump-mem
+  ```
+
+Run with a cycle limit:
+
+```bash
+./build/emulator programs/hello.bin --max-cycles 1000
+```
+
+## Tests
+
+Run all tests:
+  ```bash
+  ctest --test-dir build --output-on-failure
+  ```
+
+Run a single test by name:
+  ```bash
+  ctest --test-dir build -R test_alu
+  ```
+
+
+## Design
+
+![CPU Schematic](docs/mips_cpu_schematic.png)
+
 > - The CPU is **32-bit** (32 GPRs, 32-bit words, 4096-word address space). Low-level primitives (flip-flops, standalone registers) default to 16-bit unless configured otherwise.
 > - All binary values are represented by `std::vector<bool>` with **index 0 as MSB** (most significant bit) and **last index as LSB** (least significant bit)
 > - Memory is **word-addressed** (each address refers to a 32-bit word, not a byte)
+
+### ISA
+
+| Type    | Instructions |
+|---------|-------------|
+| R-type  | `add`, `addu`, `sub`, `and`, `or`, `xor`, `nor`, `slt`, `sll`, `srl`, `sra`, `mult`, `multu`, `mfhi`, `mflo`, `jr`, `jalr` |
+| I-type  | `addi`, `slti`, `andi`, `ori`, `xori`, `lui`, `lw`, `sw`, `beq`, `bne` |
+| J-type  | `j`, `jal` |
+| Special | `halt` |
+| Pseudo  | `li`, `move` *(expanded by the assembler, not real instructions)* |
+
+`mult`/`multu` store the 64-bit product in the HI/LO register pair. Use `mfhi`/`mflo` to move the result into a general-purpose register.
+
+#### Instruction Encoding
+
+```
+R-type:  [ opcode(6) | rs(5) | rt(5) | rd(5) | shamt(5) | funct(6) ]
+I-type:  [ opcode(6) | rs(5) | rt(5) |        imm(16)              ]
+J-type:  [ opcode(6) |               target(26)                    ]
+```
+
+All instructions are 32-bit. Index 0 is MSB throughout.
+
+#### Special Registers
+
+| Register | Index | Role |
+|----------|-------|------|
+| `$zero`  | 0     | Hardwired 0 — writes discarded |
+| `$at`    | 1     | Assembler temporary |
+| `$sp`    | 29    | Stack pointer — initialised to `0xFEF`, grows downward |
+| `$fp`    | 30    | Frame pointer |
+| `$ra`    | 31    | Return address — written by `jal` |
+
+#### Memory Map
+
+| Range           | Region | Description |
+|-----------------|--------|-------------|
+| `0x000`–`0x7FF` | TEXT   | Program code |
+| `0x800`–`0xEFF` | DATA   | Static data / strings |
+| `0xF00`–`0xFEF` | STACK  | Grows downward; `$sp` starts at `0xFEF` |
+| `0xFFE`         | MMIO   | Read character from stdin |
+| `0xFFF`         | MMIO   | Write character to stdout |
+
 
 ## Project Structure
 
@@ -16,6 +162,7 @@ Goals: Design and implement a complete software CPU in C/C++, including its arch
 - **emulator/** - Emulator entrypoint and binary loader.
   - `main.cpp` runs compiled programs on the CPU model
   - `loader.*` reads `.bin` program images into memory
+  - `debug.*` — interactive step-through debug loop; writes state to `tmp/debug.json`
 - **cpu/** - CPU core implementation.
   - `isa.h` — opcode/funct enums and instruction struct
   - `control_unit.*` — decodes instructions and drives datapath control signals
@@ -42,129 +189,9 @@ Goals: Design and implement a complete software CPU in C/C++, including its arch
 - **tests/** - Unit tests grouped by subsystem
   - ALU, memory, registers, clock, gates, and utility tests
 - **docs/** - Architecture references and generated documentation
-  - `cpu_architecture.tex` / `cpu_architecture.pdf` — TikZ architecture diagram (editable LaTeX source)
-  - `cpu_flow_guide.pdf` — end-to-end component flow guide (assembler → emulator → CPU)
+  - `mips_cpu_schematic.png` / `mips_cpu_schematic.drawio` — CPU architecture diagram (editable draw.io source)
   - `MIPS_Reference_Data_Card.pdf` — MIPS ISA reference
-  - `ALU_Reference.docx` — ALU operation reference
 - **build/** - Local build output directory generated by CMake
-
-
-## Build & Run Tests
-
-Requires C++17 and CMake 3.16+.
-
-Configure the project (generates build files):
-```bash
-cmake -B build
-```
-
-Compile all executables:
-```bash
-cmake --build build
-```
-
-Run all tests:
-```bash
-ctest --test-dir build --output-on-failure
-```
-
-Run a single test by name:
-```bash
-ctest --test-dir build -R test_alu
-```
-
-## Assemble Programs
-
-Assemble an assembly source file and write the output `.bin` next to it:
-
-```bash
-./build/assembler programs/hello.asm
-```
-
-Write the binary to a specific output path:
-
-```bash
-./build/assembler programs/hello.asm -o programs/hello.bin
-```
-
-Print a hex listing to stdout instead of writing a binary file:
-
-```bash
-./build/assembler programs/hello.asm --hex
-```
-
-More examples:
-
-```bash
-./build/assembler programs/fibonacci.asm
-./build/assembler programs/recursive.asm
-```
-
-## Run the Emulator
-
-Run a compiled binary program:
-
-```bash
-./build/emulator programs/hello.bin
-```
-
-Run with register dump enabled:
-
-```bash
-./build/emulator programs/hello.bin --dump-regs
-```
-
-Run with memory dump enabled:
-
-```bash
-./build/emulator programs/hello.bin --dump-mem
-```
-
-Run with a cycle limit:
-
-```bash
-./build/emulator programs/hello.bin --max-cycles 1000
-```
-
-Use `--arg N` to override the hardcoded input at runtime without re-assembling:
-
-**Factorial** (default: n=4 → 24):
-```bash
-./build/emulator programs/recursive.bin            # → 24  (default: n=4)
-./build/emulator programs/recursive.bin --arg 6    # → 720
-./build/emulator programs/recursive.bin --arg 10   # → 3628800
-```
-
-**Fibonacci** (default: 15 terms):
-```bash
-./build/emulator programs/fibonacci.bin            # → 15 terms (default)
-./build/emulator programs/fibonacci.bin --arg 8    # → first 8 terms
-./build/emulator programs/fibonacci.bin --arg 12   # → first 12 terms
-```
-
-Combine emulator options:
-
-```bash
-./build/emulator programs/hello.bin --dump-regs --dump-mem --max-cycles 1000
-```
-
-Typical assemble-then-run flow:
-
-```bash
-./build/assembler programs/fibonacci.asm
-./build/emulator programs/fibonacci.bin --arg 10
-```
-
-## ISA Summary
-
-| Type   | Instructions |
-|--------|-------------|
-| R-type | `add`, `addu`, `sub`, `and`, `or`, `xor`, `nor`, `slt`, `sll`, `srl`, `sra`, `mult`, `multu`, `mfhi`, `mflo`, `jr`, `jalr` |
-| I-type | `addi`, `slti`, `andi`, `ori`, `xori`, `lui`, `lw`, `sw`, `beq`, `bne` |
-| J-type | `j`, `jal` |
-| Special | `halt` |
-
-`mult`/`multu` store the 64-bit product in the HI/LO register pair. Use `mfhi`/`mflo` to move the result into a general-purpose register.
 
 ## Team Members
 

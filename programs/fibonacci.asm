@@ -1,6 +1,7 @@
 .text
 main:
-    li      $t2, 15         # count
+    li      $t8, 0xFFE
+    lw      $t2, 0($t8)     # count from MMIO_IN (pass via --arg N)
     li      $t0, 0          # a = current fib
     li      $t1, 1          # b = next fib
 

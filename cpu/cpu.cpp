@@ -61,6 +61,21 @@ void CPU::dumpRegisters() const {
     }
 }
 
-bool     CPU::isHalted()  const { return cu.isHalted(); }
+bool CPU::isHalted() const { return cu.isHalted(); }
 uint64_t CPU::getCycles() const { return clock.getCycle(); }
-CPUFlags CPU::getFlags()  const { return cu.getFlags(); }
+CPUFlags CPU::getFlags() const { return cu.getFlags(); }
+unsigned int CPU::getPC() const { return cu.getPC(); }
+
+uint32_t CPU::getMemoryWord(unsigned int addr) const {
+    auto bits = memory.read(addr);
+    uint32_t result = 0;
+    for (bool b : bits) result = (result << 1) | (b ? 1u : 0u);
+    return result;
+}
+
+uint32_t CPU::getRegister(unsigned int idx) const {
+    auto bits = regfile.read(idx);
+    uint32_t result = 0;
+    for (bool b : bits) result = (result << 1) | (b ? 1u : 0u);
+    return result;
+}

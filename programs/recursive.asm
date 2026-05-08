@@ -1,6 +1,7 @@
 main:
-	addi $a0, $0, 4 # set arg
-	jal factorial   # compute the factorial
+	li   $t8, 0xFFE
+	lw   $a0, 0($t8)  # read N from MMIO_IN (pass via --arg N)
+	jal factorial     # compute the factorial
 	move $s0, $v0   # save result
 	move $a0, $s0
 	jal print_int
