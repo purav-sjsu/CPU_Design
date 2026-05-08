@@ -1,8 +1,8 @@
 .text
 main:
+    li      $t2, 15         # count
     li      $t0, 0          # a = current fib
     li      $t1, 1          # b = next fib
-    li      $t2, 15         # count
 
 fib_loop:
     beq     $t2, $zero, fib_done

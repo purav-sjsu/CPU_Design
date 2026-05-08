@@ -7,7 +7,9 @@
 static void printUsage(const char* prog) {
     std::cerr << "Usage: " << prog
               << " <program.bin> [--dump-regs] [--dump-mem] [--max-cycles N] [--arg N]\n"
-              << "  --arg N   set the factorial input (replaces hardcoded value, 0-15)\n";
+              << "  --arg N   set the runtime input value (patches instruction 0)\n"
+              << "            factorial: --arg N  (computes N!)\n"
+              << "            fibonacci: --arg N  (prints N fibonacci terms)\n";
 }
 
 int main(int argc, char* argv[]) {
