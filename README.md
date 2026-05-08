@@ -126,6 +126,22 @@ Run with a cycle limit:
 ./build/emulator programs/hello.bin --max-cycles 1000
 ```
 
+Use `--arg N` to override the hardcoded input at runtime without re-assembling:
+
+**Factorial** (default: n=4 → 24):
+```bash
+./build/emulator programs/recursive.bin            # → 24  (default: n=4)
+./build/emulator programs/recursive.bin --arg 6    # → 720
+./build/emulator programs/recursive.bin --arg 10   # → 3628800
+```
+
+**Fibonacci** (default: 15 terms):
+```bash
+./build/emulator programs/fibonacci.bin            # → 15 terms (default)
+./build/emulator programs/fibonacci.bin --arg 8    # → first 8 terms
+./build/emulator programs/fibonacci.bin --arg 12   # → first 12 terms
+```
+
 Combine emulator options:
 
 ```bash
@@ -136,7 +152,7 @@ Typical assemble-then-run flow:
 
 ```bash
 ./build/assembler programs/fibonacci.asm
-./build/emulator programs/fibonacci.bin
+./build/emulator programs/fibonacci.bin --arg 10
 ```
 
 ## ISA Summary
