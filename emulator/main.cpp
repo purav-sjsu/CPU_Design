@@ -6,8 +6,12 @@
 
 static void printUsage(const char* prog) {
     std::cerr << "Usage: " << prog
-              << " <program.bin> [--dump-regs] [--dump-mem] [--max-cycles N] [--arg N]\n"
-              << "  --arg N   set the factorial input (replaces hardcoded value, 0-15)\n";
+              << " <program.bin> [--dump-regs] [--dump-mem] [--max-cycles N]"
+                 " [--arg N] [--arg-index K]\n"
+              << "  --arg N        patch the immediate value of an instruction at runtime\n"
+              << "  --arg-index K  which instruction (0-based) to patch (default: 0)\n"
+              << "                 factorial: --arg N             (patches instruction 0)\n"
+              << "                 fibonacci: --arg N --arg-index 2 (patches instruction 2)\n";
 }
 
 int main(int argc, char* argv[]) {
@@ -17,7 +21,8 @@ int main(int argc, char* argv[]) {
     bool dumpRegs = false;
     bool dumpMem  = false;
     uint64_t maxCycles = 0;
-    int factorialArg = -1;
+    int patchArg   = -1;
+    int patchIndex =  0;
 
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
@@ -26,7 +31,9 @@ int main(int argc, char* argv[]) {
         else if (arg == "--max-cycles" && i + 1 < argc)
             maxCycles = std::stoull(argv[++i]);
         else if (arg == "--arg" && i + 1 < argc)
-            factorialArg = std::stoi(argv[++i]);
+            patchArg = std::stoi(argv[++i]);
+        else if (arg == "--arg-index" && i + 1 < argc)
+            patchIndex = std::stoi(argv[++i]);
         else if (arg[0] != '-')          binPath = arg;
     }
 
@@ -36,17 +43,17 @@ int main(int argc, char* argv[]) {
         // Load binary
         auto rawWords = loadBinary(binPath);
 
-        // Convert uint32_t vector to  vector<bool>
+        // Convert uint32_t vector to vector<bool>
         std::vector<std::vector<bool>> program;
         program.reserve(rawWords.size());
         for (uint32_t w : rawWords) program.push_back(wordToBits(w));
 
-        // Patch first instruction's 16-bit immediate with --arg value.
-        // Instruction 0 is always "addi $a0, $zero, <N>" (bits 15-0 = immediate).
-        if (factorialArg >= 0 && !program.empty()) {
-            auto imm = num2unsignedBinary(factorialArg, 16);
+        // Patch the 16-bit immediate (bits 15-0, indices 16-31) of the target
+        // instruction with the value supplied via --arg N.
+        if (patchArg >= 0 && patchIndex < static_cast<int>(program.size())) {
+            auto imm = num2unsignedBinary(patchArg, 16);
             for (int b = 0; b < 16; ++b)
-                program[0][16 + b] = imm[b];
+                program[patchIndex][16 + b] = imm[b];
         }
 
         // Boot CPU
