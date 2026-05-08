@@ -104,8 +104,13 @@ Run a single test by name:
 
 ## Design
 
+The CPU is built bottom-up from digital logic gates through to a full single-cycle MIPS pipeline. Each layer depends only on the one below it: gates → flip-flops → registers → memory → datapath → control unit → CPU.
+
 ![CPU Schematic](docs/mips_cpu_schematic.png)
 
+Each instruction completes in one cycle: **Fetch → Decode → Execute → Memory → Writeback**. The assembler compiles `.asm` source into a flat binary (`.bin`) which the emulator loads directly into the CPU's instruction memory.
+
+**Key design decisions:**
 > - The CPU is **32-bit** (32 GPRs, 32-bit words, 4096-word address space). Low-level primitives (flip-flops, standalone registers) default to 16-bit unless configured otherwise.
 > - All binary values are represented by `std::vector<bool>` with **index 0 as MSB** (most significant bit) and **last index as LSB** (least significant bit)
 > - Memory is **word-addressed** (each address refers to a 32-bit word, not a byte)
@@ -131,6 +136,32 @@ J-type:  [ opcode(6) |               target(26)                    ]
 ```
 
 All instructions are 32-bit. Index 0 is MSB throughout.
+
+**Opcodes** (I-type and J-type; R-type always `0x00`)
+
+| Mnemonic | Opcode | Mnemonic | Opcode |
+|----------|--------|----------|--------|
+| `j`      | `0x02` | `addi`   | `0x08` |
+| `jal`    | `0x03` | `slti`   | `0x0A` |
+| `beq`    | `0x04` | `andi`   | `0x0C` |
+| `bne`    | `0x05` | `ori`    | `0x0D` |
+| `lw`     | `0x23` | `xori`   | `0x0E` |
+| `sw`     | `0x2B` | `lui`    | `0x0F` |
+| `halt`   | `0x3F` |          |        |
+
+**Funct codes** (R-type only)
+
+| Mnemonic | Funct  | Mnemonic | Funct  |
+|----------|--------|----------|--------|
+| `sll`    | `0x00` | `mult`   | `0x18` |
+| `srl`    | `0x02` | `multu`  | `0x19` |
+| `sra`    | `0x03` | `mfhi`   | `0x10` |
+| `jr`     | `0x08` | `mflo`   | `0x12` |
+| `jalr`   | `0x09` | `add`    | `0x20` |
+| `addu`   | `0x21` | `sub`    | `0x22` |
+| `and`    | `0x24` | `or`     | `0x25` |
+| `xor`    | `0x26` | `nor`    | `0x27` |
+| `slt`    | `0x2A` |          |        |
 
 #### Special Registers
 
