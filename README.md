@@ -2,6 +2,13 @@
 
 **Goals**: Design and implement a complete software CPU in C/C++, including its architecture, ISA, emulator, assembler, and demo programs.
 
+## Demo Videos
+
+Demo recordings of the programs running on the CPU emulator are available in the [`demo_videos/`](demo_videos/) folder:
+
+- [`demo_videos/Factorial-demo-video.mp4`](demo_videos/Factorial-demo-video.mp4) — recursive factorial demo
+- [`demo_videos/FibonacciVideo.mp4`](demo_videos/FibonacciVideo.mp4) — iterative fibonacci demo
+
 ## Setup
 
 Before running demo programs we have to compile the emulator and assemble the program binaries
