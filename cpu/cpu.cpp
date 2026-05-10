@@ -108,16 +108,25 @@ void CPU::dumpMemory() const {
     std::cout << std::dec;
 }
 
-// Print all register values to stdout.
 void CPU::dumpRegisters() const {
-    std::cout << "Register dump:\n";
+    static const char* names[32] = {
+        "$zero", "$at",  "$v0",  "$v1",  "$a0",  "$a1",  "$a2",  "$a3",
+        "$t0",   "$t1",  "$t2",  "$t3",  "$t4",  "$t5",  "$t6",  "$t7",
+        "$s0",   "$s1",  "$s2",  "$s3",  "$s4",  "$s5",  "$s6",  "$s7",
+        "$t8",   "$t9",  "$k0",  "$k1",  "$gp",  "$sp",  "$fp",  "$ra"
+    };
+
+    std::cout << "\n=== Register Dump ===\n\n";
+
     for (unsigned int i = 0; i < NUM_REGS; ++i) {
-        auto word = regfile.read(i);
-        unsigned int val = static_cast<unsigned int>(unsignedBinaryToNum(word));
-        std::cout << "  $" << std::setw(2) << std::setfill('0') << i
-                  << " = 0x" << std::hex << std::setw(8) << std::setfill('0') << val
-                  << "  (" << std::dec << val << ")\n";
+        uint32_t v = getRegister(i);
+        std::cout << "  [" << std::setw(2) << std::setfill(' ') << i << "] "
+                  << std::left << std::setw(6) << std::setfill(' ') << names[i]
+                  << std::right
+                  << "  0x" << std::hex << std::setw(8) << std::setfill('0') << v
+                  << "  " << std::dec << std::setw(10) << std::setfill(' ') << v << "\n";
     }
+    std::cout << "\n";
 }
 
 bool CPU::isHalted() const { return cu.isHalted(); }
