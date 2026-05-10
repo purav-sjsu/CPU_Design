@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
         std::cerr << "\n[emulator] Halted after " << cpu.getCycles() << " cycles\n";
 
         if (dumpRegs) cpu.dumpRegisters();
-        if (dumpMem)  cpu.dumpMemory(TEXT_START, DATA_END);
+        if (dumpMem) cpu.dumpMemory();
 
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << "\n";
