@@ -23,8 +23,8 @@ public:
     // Execute exactly one cycle.
     void step();
 
-    // Print a hex dump of memory [from, to] to stdout.
-    void dumpMemory(unsigned int from, unsigned int to) const;
+    // Print a smart dump of TEXT, DATA, and STACK sections.
+    void dumpMemory() const;
 
     // Print all register values to stdout.
     void dumpRegisters() const;

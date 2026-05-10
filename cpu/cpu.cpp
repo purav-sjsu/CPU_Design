@@ -36,29 +36,97 @@ void CPU::step() {
     cu.step();
 }
 
-// Print a hex dump of memory [from, to] to stdout.
-void CPU::dumpMemory(unsigned int from, unsigned int to) const {
-    std::cout << "Memory dump [0x" << std::hex << from
-              << " – 0x" << to << "]:\n";
-    for (unsigned int addr = from; addr <= to; ++addr) {
-        auto word = memory.read(addr);
-        unsigned int val = static_cast<unsigned int>(unsignedBinaryToNum(word));
-        std::cout << "  [0x" << std::setw(4) << std::setfill('0') << addr << "] = 0x"
-                  << std::setw(8) << val << "\n";
+// Print a memory dump of TEXT, DATA, and STACK sections to stdout.
+void CPU::dumpMemory() const {
+    constexpr unsigned int STACK_BOTTOM = DATA_END + 1;  // 0xF00
+
+    auto lastNonZero = [&](unsigned int start, unsigned int end) -> int {
+        for (int a = static_cast<int>(end); a >= static_cast<int>(start); --a)
+            if (getMemoryWord(static_cast<unsigned int>(a)) != 0) return a;
+        return static_cast<int>(start) - 1;
+    };
+
+    auto printRange = [&](unsigned int start, unsigned int end,
+                          unsigned int forceAddr = ~0u, const char* forceLabel = nullptr) {
+        unsigned int zeros = 0;
+        auto flushZeros = [&]() {
+            if (zeros > 0) {
+                std::cout << "    ... (" << std::dec << zeros << " zero word"
+                          << (zeros == 1 ? "" : "s") << ")\n";
+                zeros = 0;
+            }
+        };
+        for (unsigned int a = start; a <= end; ++a) {
+            uint32_t v = getMemoryWord(a);
+            if (v == 0 && a != forceAddr) { ++zeros; continue; }
+            flushZeros();
+            std::cout << "  [0x" << std::hex << std::setw(3) << std::setfill('0') << a
+                      << "]  0x" << std::setw(8) << std::setfill('0') << v;
+            if (a == forceAddr && forceLabel)
+                std::cout << "  <- " << forceLabel;
+            std::cout << "\n";
+        }
+        flushZeros();
+        std::cout << std::dec;
+    };
+
+    std::cout << "\n=== Memory Dump ===\n";
+
+    int tLast = lastNonZero(TEXT_START, TEXT_END);
+    std::cout << "\n-- TEXT [0x000-0x7FF] (program code) --\n";
+    if (tLast < static_cast<int>(TEXT_START)) {
+        std::cout << "  (empty)\n";
+    } else {
+        printRange(TEXT_START, static_cast<unsigned int>(tLast));
     }
+
+    int dLast = lastNonZero(DATA_START, DATA_END);
+    if (dLast >= static_cast<int>(DATA_START)) {
+        std::cout << "\n-- DATA [0x800-0xEFF] (static data) --\n";
+        printRange(DATA_START, static_cast<unsigned int>(dLast));
+    }
+
+    unsigned int sp = getRegister(REG_SP);
+    std::cout << "\n-- STACK [0xF00-0xFEF] (grows down";
+    if (sp >= STACK_BOTTOM && sp <= STACK_TOP)
+        std::cout << ", $sp=0x" << std::hex << std::setw(3) << std::setfill('0') << sp;
+    std::cout << std::dec << ") --\n";
+
+    if (sp > STACK_TOP || sp < STACK_BOTTOM) {
+        std::cout << "  (SP=0x" << std::hex << sp << " out of stack region)\n" << std::dec;
+    } else if (sp == STACK_TOP) {
+        std::cout << "  $sp=0x" << std::hex << std::setw(3) << std::setfill('0') << sp << std::dec << "\n";
+    } else {
+        printRange(sp, STACK_TOP, sp, "$sp");
+    }
+
+    std::cout << "\n-- MMIO [0xFFE-0xFFF] --\n";
+    std::cout << "  [0xFFE]  0x" << std::hex << std::setw(8) << std::setfill('0')
+              << getMemoryWord(MMIO_IN)  << "  MMIO_IN  (stdin)\n";
+    std::cout << "  [0xFFF]  0x" << std::hex << std::setw(8) << std::setfill('0')
+              << getMemoryWord(MMIO_OUT) << "  MMIO_OUT (stdout)\n\n";
     std::cout << std::dec;
 }
 
-// Print all register values to stdout.
 void CPU::dumpRegisters() const {
-    std::cout << "Register dump:\n";
+    static const char* names[32] = {
+        "$zero", "$at",  "$v0",  "$v1",  "$a0",  "$a1",  "$a2",  "$a3",
+        "$t0",   "$t1",  "$t2",  "$t3",  "$t4",  "$t5",  "$t6",  "$t7",
+        "$s0",   "$s1",  "$s2",  "$s3",  "$s4",  "$s5",  "$s6",  "$s7",
+        "$t8",   "$t9",  "$k0",  "$k1",  "$gp",  "$sp",  "$fp",  "$ra"
+    };
+
+    std::cout << "\n=== Register Dump ===\n\n";
+
     for (unsigned int i = 0; i < NUM_REGS; ++i) {
-        auto word = regfile.read(i);
-        unsigned int val = static_cast<unsigned int>(unsignedBinaryToNum(word));
-        std::cout << "  $" << std::setw(2) << std::setfill('0') << i
-                  << " = 0x" << std::hex << std::setw(8) << std::setfill('0') << val
-                  << "  (" << std::dec << val << ")\n";
+        uint32_t v = getRegister(i);
+        std::cout << "  [" << std::setw(2) << std::setfill(' ') << i << "] "
+                  << std::left << std::setw(6) << std::setfill(' ') << names[i]
+                  << std::right
+                  << "  0x" << std::hex << std::setw(8) << std::setfill('0') << v
+                  << "  " << std::dec << std::setw(10) << std::setfill(' ') << v << "\n";
     }
+    std::cout << "\n";
 }
 
 bool CPU::isHalted() const { return cu.isHalted(); }
